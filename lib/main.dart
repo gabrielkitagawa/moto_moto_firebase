@@ -3,6 +3,7 @@
 import 'package:device_preview/device_preview.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:moto_moto_firebase/view/principal_view.dart';
 
 import 'firebase_options.dart';
 import 'view/cadastrar_view.dart';
@@ -36,6 +37,7 @@ class MainApp extends StatelessWidget {
       routes: {
         'login': (context) => LoginView(),
         'cadastrar': (context) => CadastrarView(),
+        'principal': (context) => PrincipalView(),
       },
     );
   }

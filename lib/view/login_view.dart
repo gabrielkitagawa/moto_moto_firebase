@@ -18,7 +18,9 @@ class _LoginViewState extends State<LoginView> {
   @override
   void initState() {
     super.initState();
-  }
+    txtEmail.text = 'gloria@gmail.com';   // 
+    txtSenha.text = 'gloria12345';        // Facilitar a vida pra testar
+  }                                       //
 
   @override
   Widget build(BuildContext context) {
