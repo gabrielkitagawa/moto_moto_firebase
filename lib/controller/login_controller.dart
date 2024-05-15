@@ -16,6 +16,17 @@ class LoginController {
       email: email,
       password: senha,
     ).then((resultado) { //Sucesso
+
+      // ARMAZENAR O NOME DO USUARIO EM UMA COLECAO NO DATABASE FIRESTORE
+
+      FirebaseFirestore.instance.collection('usuarios')
+      .add(
+        {
+          "nome" : nome,
+          "uid" : resultado.user!.uid,
+        }
+      );
+
       sucesso(context, 'Usuário criado com sucesso');
 
     }).catchError((e) { //Erro

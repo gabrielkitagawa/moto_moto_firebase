@@ -4,6 +4,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 import '../controller/login_controller.dart';
+import '../controller/tarefa_controller.dart';
+import '../model/tarefa.dart';
 
 class PrincipalView extends StatefulWidget {
   const PrincipalView({super.key});
@@ -25,12 +27,10 @@ class _PrincipalViewState extends State<PrincipalView> {
         actions: [
           IconButton(
             onPressed: () {
-
               LoginController().logout();
               Navigator.pop(context);
-
             },
-            icon: Icon(Icons.exit_to_app, color: Colors.black,),
+            icon: Icon(Icons.exit_to_app),
           )
         ],
       ),
@@ -38,7 +38,60 @@ class _PrincipalViewState extends State<PrincipalView> {
       // BODY
       body: Padding(
         padding: const EdgeInsets.all(20.0),
+        //
+        // Exibir as TAREFAS
+        //
+        child: StreamBuilder<QuerySnapshot>(
+          //fluxo de dados
+          stream: TarefaController().listar().snapshots(),
+
+          //exibição dos dados
+          builder: (context, snapshot) {
+            //verificar o status da conexão
+            switch (snapshot.connectionState) {
+              //sem conexão com do Firebase
+              case ConnectionState.none:
+                return Center(
+                  child: Text('Não foi possível conectar ao banco de dados'),
+                );
+
+              //aguardando a recuperação dos dados
+              case ConnectionState.waiting:
+                return Center(
+                  child: CircularProgressIndicator(),
+                );
+
+              //recuperar e exibir os dados
+              default:
+                final dados = snapshot.requireData;
+                if (dados.size > 0) {
+                  //
+                  // LISTVIEW
+                  //
+                  return ListView.builder(
+                    itemCount: dados.size,
+                    itemBuilder: (context, index) {
+
+                      //ID do documento
+                      String id = dados.docs[index].id;
+                      dynamic item = dados.docs[index].data();
+
+                      return ListTile(
+                        title: Text(item['titulo']),
+                        subtitle: Text(item['descricao']),
+                      );
+                    },
+                  );
+                } else {
+                  return Center(
+                    child: Text('Nenhuma tarefa encontrada.'),
+                  );
+                }
+            }
+          },
+        ),
       ),
+
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           salvarTarefa(context);
@@ -57,7 +110,7 @@ class _PrincipalViewState extends State<PrincipalView> {
       builder: (BuildContext context) {
         // retorna um objeto do tipo Dialog
         return AlertDialog(
-          title: Text((docId==null )? "Adicionar Tarefa": "Editar Tarefa"),
+          title: Text((docId == null) ? "Adicionar Tarefa" : "Editar Tarefa"),
           content: SizedBox(
             height: 250,
             width: 300,
@@ -96,7 +149,18 @@ class _PrincipalViewState extends State<PrincipalView> {
             ),
             ElevatedButton(
               child: Text("salvar"),
-              onPressed: () {},
+              onPressed: () {
+                //instanciar um OBJETO Tarefa
+                var t = Tarefa(LoginController().idUsuario(), txtTitulo.text,
+                    txtDescricao.text);
+
+                //adicionar tarefa
+                TarefaController().adicionar(context, t);
+
+                //limpar os campos de texto
+                txtTitulo.clear();
+                txtDescricao.clear();
+              },
             ),
           ],
         );
