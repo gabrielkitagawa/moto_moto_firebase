@@ -71,7 +71,6 @@ class _PrincipalViewState extends State<PrincipalView> {
                   return ListView.builder(
                     itemCount: dados.size,
                     itemBuilder: (context, index) {
-
                       //ID do documento
                       String id = dados.docs[index].id;
                       dynamic item = dados.docs[index].data();
@@ -79,6 +78,30 @@ class _PrincipalViewState extends State<PrincipalView> {
                       return ListTile(
                         title: Text(item['titulo']),
                         subtitle: Text(item['descricao']),
+                        //
+                        // EDITAR e EXCLUIR
+                        //
+                        trailing: SizedBox(
+                          width: 80,
+                          child: Row(
+                            children: [
+                              IconButton(
+                                icon: Icon(Icons.edit_outlined),
+                                onPressed: (){
+                                  txtTitulo.text = item['titulo'];
+                                  txtDescricao.text = item['descricao'];
+                                  salvarTarefa (context,docId: id);
+                                },
+                              ),
+                               IconButton(
+                                icon: Icon(Icons.delete_outlined),
+                                onPressed: (){
+                                  TarefaController().excluir(context, id);
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
                       );
                     },
                   );
@@ -154,9 +177,13 @@ class _PrincipalViewState extends State<PrincipalView> {
                 var t = Tarefa(LoginController().idUsuario(), txtTitulo.text,
                     txtDescricao.text);
 
+                if (docId == null){
                 //adicionar tarefa
                 TarefaController().adicionar(context, t);
-
+                } else{
+                  // atualizar tarefa
+                  TarefaController().atualizar(context, docId, t);
+                }
                 //limpar os campos de texto
                 txtTitulo.clear();
                 txtDescricao.clear();
